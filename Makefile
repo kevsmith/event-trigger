@@ -11,4 +11,5 @@ build:
 	podman tag $(IMAGE_FULL_NAME):$(IMAGE_VERSION) $(IMAGE_FULL_NAME):latest
 
 push:
-	podman push $(IMAGE_FULL_NAME):latest $(IMAGE_FULL_NAME):$(IMAGE_VERSION)
+	podman push $(IMAGE_FULL_NAME):$(IMAGE_VERSION)
+	podman push $(IMAGE_FULL_NAME):latest
