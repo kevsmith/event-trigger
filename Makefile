@@ -7,7 +7,8 @@ IMAGE_VERSION                := $(shell git rev-parse --short HEAD)
 all: build push
 
 build:
-	podman build -t $(IMAGE_FULL_NAME):latest -t $(IMAGE_FULL_NAME):$(IMAGE_VERSION) .
+	podman build -t $(IMAGE_FULL_NAME):$(IMAGE_VERSION) .
+	podman tag $(IMAGE_FULL_NAME):$(IMAGE_VERSION) $(IMAGE_FULL_NAME):latest
 
 push:
 	podman push $(IMAGE_FULL_NAME):latest $(IMAGE_FULL_NAME):$(IMAGE_VERSION)
