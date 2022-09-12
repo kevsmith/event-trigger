@@ -66,7 +66,6 @@ def make_lifecycle_event_payload(args, data):
     flow_status = args[1]
     event_name = f"metaflow_flow_run_{flow_status}"
     user_data = {}
-    print(args)
     if len(args) > 2 and args[2] is not None:
         user_data = decode_user_data(args[1])
     for k in user_data.keys():
