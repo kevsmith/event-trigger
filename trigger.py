@@ -93,10 +93,11 @@ def main():
     if len(sys.argv) < 2:
         raise RuntimeError(f"Not enough arguments: {len(sys.argv)}")
 
+    args = sys.argv[2:]
     if sys.argv[1] == "user_event":
-        payload = make_user_event_payload(sys.argv[2:], {})
+        payload = make_user_event_payload(args, {})
     else:
-        payload = make_lifecycle_event_payload(sys.argv[2:], {})
+        payload = make_lifecycle_event_payload(args, {})
     print(f"payload: {payload}")
     if event_source in HTTP_PROTOCOLS:
         call_http(event_source, payload)
