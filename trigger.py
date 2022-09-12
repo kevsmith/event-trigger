@@ -1,4 +1,5 @@
 import asyncio
+import base64
 from datetime import datetime
 import json
 import os
@@ -35,6 +36,11 @@ async def call_nats(event_source, msg):
         result = 1
 
 
+def decode_user_data(data):
+    raw = base64.b64decode(data)
+    return json.loads(raw.decode("UTF-8"))
+
+
 def make_user_event_payload(args, data):
     ts = int(datetime.utcnow().timestamp())
     data["metaflow_trigger_timestamp"] = ts
@@ -43,7 +49,7 @@ def make_user_event_payload(args, data):
     event_name = args[0]
     user_data = {}
     if len(args) > 1 and args[1] is not None:
-        user_data = json.loads(args[1])
+        user_data = decode_user_data(args[1])
     for k in user_data.keys():
         if k not in data.keys():
             data[k] = user_data[k]
@@ -60,8 +66,9 @@ def make_lifecycle_event_payload(args, data):
     flow_status = args[1]
     event_name = f"metaflow_flow_run_{flow_status}"
     user_data = {}
+    print(args)
     if len(args) > 2 and args[2] is not None:
-        user_data = json.loads(args[2])
+        user_data = decode_user_data(args[1])
     for k in user_data.keys():
         if k not in data.keys():
             data[k] = user_data[k]
@@ -82,27 +89,15 @@ def main():
     event_source = os.getenv("METAFLOW_EVENT_SOURCE")
     if event_source is None:
         raise RuntimeError("METAFLOW_EVENT_SOURCE not set")
-    flow_name = os.getenv("METAFLOW_FLOW_NAME")
-    flow_path_spec = "%s/%s" % (
-        flow_name,
-        os.getenv("METAFLOW_RUN_ID"),
-    )
-    step_path_spec = "%s/%s" % (flow_path_spec, os.getenv("METAFLOW_STEP_NAME"))
-    data = dict(
-        metaflow_trigger_flow_spec=flow_path_spec,
-        metaflow_trigger_step_spec=step_path_spec,
-        metaflow_trigger_flow_name=os.getenv("METAFLOW_FLOW_NAME"),
-        metaflow_trigger_run_id=os.getenv("METAFLOW_RUN_ID"),
-    )
 
     if len(sys.argv) < 2:
         raise RuntimeError(f"Not enough arguments: {len(sys.argv)}")
 
     if sys.argv[1] == "user_event":
-        payload = make_user_event_payload(sys.argv[2:], data)
+        payload = make_user_event_payload(sys.argv[2:])
     else:
-        payload = make_lifecycle_event_payload(sys.argv[2:], data)
-
+        payload = make_lifecycle_event_payload(sys.argv[2:])
+    print(f"payload: {payload}")
     if event_source in HTTP_PROTOCOLS:
         call_http(event_source, payload)
     else:
@@ -112,5 +107,5 @@ def main():
 
 if __name__ == "__main__":
     result = main()
+    print(f"Event trigger returned: {result}")
     sleep(1)
-    sys.exit(result)
