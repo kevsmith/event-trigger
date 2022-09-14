@@ -37,6 +37,7 @@ async def call_nats(event_source, msg):
 
 
 def decode_user_data(data):
+    print(f"user data: {data}")
     raw = bytes(data, "UTF-8")
     decoded = base64.b64decode(raw)
     text = decoded.decode(encoding="UTF-8")
