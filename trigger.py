@@ -37,8 +37,10 @@ async def call_nats(event_source, msg):
 
 
 def decode_user_data(data):
-    raw = base64.b64decode(data)
-    return json.loads(raw.decode("UTF-8"))
+    raw = bytes(data, "UTF-8")
+    decoded = base64.b64decode(raw)
+    text = decoded.decode(encoding="UTF-8")
+    return json.loads(text)
 
 
 def make_user_event_payload(args, data):
