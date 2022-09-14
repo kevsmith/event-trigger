@@ -37,7 +37,6 @@ async def call_nats(event_source, msg):
 
 
 def decode_user_data(data):
-    print(f"user data: {data}")
     raw = bytes(data, "UTF-8")
     decoded = base64.b64decode(raw)
     text = decoded.decode(encoding="UTF-8")
@@ -70,7 +69,7 @@ def make_lifecycle_event_payload(args, data):
     event_name = f"metaflow_flow_run_{flow_status}"
     user_data = {}
     if len(args) > 2 and args[2] is not None:
-        user_data = decode_user_data(args[1])
+        user_data = decode_user_data(args[2])
     for k in user_data.keys():
         if k not in data.keys():
             data[k] = user_data[k]
